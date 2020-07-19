@@ -9,18 +9,19 @@ const registerChannelModule = `component.messagebus.host.channel.register`;
 
 module.exports = { 
     handle: (callingModule, options) => {
-        delegate.register(thisModule, async ({ host }) => {
+        delegate.register(thisModule, ({ host }) => {
             delegate.register(registerChannelModule, async ({ channel }) => {
-                await delegate.call(callingModule, { channel });
-                const statusMessage = "success";
-                return {
-                    headers: { "Content-Type":"text/plain", "Content-Length": Buffer.byteLength(statusMessage) },
-                    statusCode: 200,
-                    statusMessage,
-                    data: statusMessage
-                };
+                return await delegate.call(callingModule, { channel });
             });
-            requestHandlerSecure.handle(registerChannelModule, options);
+            requestHandlerSecure.handle(registerChannelModule, {
+                publicHost: host.publicHost, 
+                publicPort: host.publicPort, 
+                privateHost: host.privateHost, 
+                privatePort: host.privatePort, 
+                path: "/channel",
+                hashedPassphrase: host.hashedPassphrase,
+                hashedPassphraseSalt: host.hashedPassphraseSalt
+            });
         });
         messagebusHost.handle(thisModule, options);
     }
