@@ -1,1 +1,1 @@
-# component.messagebus.host.channel
+# component.messagebus.channel
