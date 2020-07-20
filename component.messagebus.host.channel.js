@@ -30,8 +30,8 @@ module.exports = {
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
                 const thisModuleChannelSubscribe = `component.messagebus.${host.publicHost}${channel}.subscribe`;
-                delegate.register(thisModuleChannelSubscribe, async ({ channel, data }) => {
-                    return await delegate.call(callingSubscriberModule, { data });
+                delegate.register(thisModuleChannelSubscribe, async ({ data }) => {
+                    return await delegate.call(callingSubscriberModule, { channel, data });
                 });
                 requestHandlerSecure.handle(thisModuleChannelSubscribe, {
                     publicHost: host.publicHost,
