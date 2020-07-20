@@ -16,11 +16,11 @@ module.exports = {
                     return { headers: { "Content-Type":"text/plain"}, statusCode: 400, statusMessage: "Bad Request", data: "channel is required" };
                 }
                 
-                const thisModuleChannelPublish = `component.messagebus.${host.publicHost}${channel}.publish`;
-                delegate.register(thisModuleChannelPublish, async ({ data }) => {
+                const channelPublishHandler = `component.messagebus.${host.publicHost}${channel}.publish`;
+                delegate.register(channelPublishHandler, async ({ data }) => {
                     return await delegate.call(callingPublisherModule, { channel, data });
                 });
-                requestHandlerSecure.handle(thisModuleChannelPublish, {
+                requestHandlerSecure.handle(channelPublishHandler, {
                     publicHost: host.publicHost,
                     publicPort: host.publicPort,
                     privateHost: host.privateHost,
@@ -29,11 +29,11 @@ module.exports = {
                     hashedPassphrase: host.hashedPassphrase,
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
-                const thisModuleChannelSubscribe = `component.messagebus.${host.publicHost}${channel}.subscribe`;
-                delegate.register(thisModuleChannelSubscribe, async ({ data }) => {
+                const channelSubscribeHandler = `component.messagebus.${host.publicHost}${channel}.subscribe`;
+                delegate.register(channelSubscribeHandler, async ({ data }) => {
                     return await delegate.call(callingSubscriberModule, { channel, data });
                 });
-                requestHandlerSecure.handle(thisModuleChannelSubscribe, {
+                requestHandlerSecure.handle(channelSubscribeHandler, {
                     publicHost: host.publicHost,
                     publicPort: host.publicPort,
                     privateHost: host.privateHost,
