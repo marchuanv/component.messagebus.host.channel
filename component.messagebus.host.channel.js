@@ -9,7 +9,7 @@ module.exports = {
     handle: ({ callingSubscriberModule, callingPublisherModule }, options) => {
         delegate.register(thisModule, ({ host }) => {
             const thisModuleRegisterChannel = `component.messagebus.host.channel.register.${host.publicHost}.${host.publicPort}`;
-            delegate.register(thisModuleRegisterChannel, async ({ data }) => {
+            delegate.register(thisModuleRegisterChannel, async ({  data }) => {
                 
                 const {channel} = utils.getJSONObject(data) || {};
                 if ( !channel){
@@ -17,8 +17,8 @@ module.exports = {
                 }
                 
                 const channelPublishHandler = `component.messagebus.${host.publicHost}${channel}.publish`;
-                delegate.register(channelPublishHandler, async ({ data }) => {
-                    return await delegate.call(callingPublisherModule, { channel, data });
+                delegate.register(channelPublishHandler, async ({ headers: { fromhost,fromport },data }) => {
+                    return await delegate.call(callingPublisherModule, { fromhost,fromport, channel, data });
                 });
                 requestHandlerSecure.handle(channelPublishHandler, {
                     publicHost: host.publicHost,
@@ -30,8 +30,8 @@ module.exports = {
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
                 const channelSubscribeHandler = `component.messagebus.${host.publicHost}${channel}.subscribe`;
-                delegate.register(channelSubscribeHandler, async ({ data }) => {
-                    return await delegate.call(callingSubscriberModule, { channel, data });
+                delegate.register(channelSubscribeHandler, async ({ headers: { fromhost,fromport }, data }) => {
+                    return await delegate.call(callingSubscriberModule, {  fromhost,fromport, channel, data });
                 });
                 requestHandlerSecure.handle(channelSubscribeHandler, {
                     publicHost: host.publicHost,
