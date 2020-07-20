@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/marchuanv/component.messagebus.host.channel#readme",
   "dependencies": {
+    "utils": "git+https://github.com/marchuanv/utils.git",
     "logging": "git+https://github.com/marchuanv/logging.git",
     "component.messagebus.host": "git+https://github.com/marchuanv/component.messagebus.host.git",
     "component.request.handler.secure": "git+https://github.com/marchuanv/component.request.handler.secure.git",
