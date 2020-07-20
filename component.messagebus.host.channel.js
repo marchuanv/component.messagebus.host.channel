@@ -14,7 +14,7 @@ module.exports = {
                 if ( !channel){
                     return { headers: { "Content-Type":"text/plain"}, statusCode: 400, statusMessage: "Bad Request", data: "channel is required" };
                 }
-                return await delegate.call(callingModule, { channel });
+                await delegate.call(callingModule, { channel });
             });
             requestHandlerSecure.handle(channelModule, {
                 publicHost: host.publicHost,
