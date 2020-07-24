@@ -4,23 +4,25 @@ const requestHandlerSecure = require("component.request.handler.secure");
 const delegate = require("component.delegate");
 const logging = require("logging");
 logging.config.add("MessageBus Channel");
-const thisModule = "component.messagebus.host.channel";
 module.exports = { 
-    handle: ({ callingSubscriberModule, callingPublisherModule }, options) => {
-        delegate.register(thisModule, ({ host }) => {
-            const thisModuleRegisterChannel = `component.messagebus.host.channel.register.${host.publicHost}.${host.publicPort}`;
-            delegate.register(thisModuleRegisterChannel, async ({  data }) => {
+    handle: (options) => {
+        const name = `${options.publicPort}/channel`;
+        delegate.register("component.messagebus.host.channel", name, ({ host }) => {
+            const registerChannelContext = `component.messagebus.host.channel.register`;
+            const registerContextName = `${host.publicPort}/channel/register`;
+            delegate.register(registerChannelContext, registerContextName, async ({  data }) => {
                 
-                const {channel} = utils.getJSONObject(data) || {};
-                if ( !channel){
+                const { channel } = utils.getJSONObject(data) || {};
+                if (!channel){
                     return { headers: { "Content-Type":"text/plain"}, statusCode: 400, statusMessage: "Bad Request", data: "channel is required" };
                 }
+                const channelContextName = `${host.publicPort}/channel/${channel}`;
                 
-                const channelPublishHandler = `component.messagebus.${host.publicHost}${channel}.publish`;
-                delegate.register(channelPublishHandler, async ({ headers: { fromhost,fromport },data }) => {
-                    return await delegate.call(callingPublisherModule, { fromhost,fromport, channel, data });
+                const channelPublishContext = `component.messagebus.publish`;
+                delegate.register(channelPublishContext, channelContextName, async ({ headers: { fromhost, fromport },data }) => {
+                    await delegate.call({ context: `component.messagebus.publisher` }, { fromhost, fromport, channel, data });
                 });
-                requestHandlerSecure.handle(channelPublishHandler, {
+                requestHandlerSecure.handle(channelPublishContext, {
                     publicHost: host.publicHost,
                     publicPort: host.publicPort,
                     privateHost: host.privateHost,
@@ -29,11 +31,12 @@ module.exports = {
                     hashedPassphrase: host.hashedPassphrase,
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
-                const channelSubscribeHandler = `component.messagebus.${host.publicHost}${channel}.subscribe`;
-                delegate.register(channelSubscribeHandler, async ({ headers: { fromhost,fromport }, data }) => {
-                    return await delegate.call(callingSubscriberModule, {  fromhost,fromport, channel, data });
+
+                const channelSubscribeContext = `component.messagebus.subscribe`;
+                delegate.register(channelSubscribeContext, channelContextName, async ({ headers: { fromhost,fromport }, data }) => {
+                    await delegate.call({ context: `component.messagebus.subscriber` }, { fromhost, fromport, channel, data });
                 });
-                requestHandlerSecure.handle(channelSubscribeHandler, {
+                requestHandlerSecure.handle(channelSubscribeContext, {
                     publicHost: host.publicHost,
                     publicPort: host.publicPort,
                     privateHost: host.privateHost,
@@ -42,17 +45,18 @@ module.exports = {
                     hashedPassphrase: host.hashedPassphrase,
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
+
             });
-            requestHandlerSecure.handle(thisModuleRegisterChannel, {
+            requestHandlerSecure.handle(registerChannelContext, {
                 publicHost: host.publicHost,
                 publicPort: host.publicPort,
                 privateHost: host.privateHost,
                 privatePort: host.privatePort,
-                path: "/channel",
+                path: "/channel/register",
                 hashedPassphrase: host.hashedPassphrase,
                 hashedPassphraseSalt: host.hashedPassphraseSalt
             });
         });
-        messagebusHost.handle(thisModule, options);
+        messagebusHost.handle(options);
     }
 };

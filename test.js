@@ -1,15 +1,16 @@
 const messagebusChannel = require("./component.messagebus.host.channel.js");
 const delegate = require("component.delegate");
 (async()=>{ 
-    const callingPublisherModule = "component.messagebus.publisher";
-    const callingSubscriberModule = "component.messagebus.subscriber";
-    delegate.register(callingPublisherModule, () => {
+    const publisherContext = "component.messagebus.publisher";
+    const subscriberContext = "component.messagebus.subscriber";
+    const contextName = `3000.apples`;
+    delegate.register(publisherContext, contextName, () => {
         return { statusCode: 200, statusMessage: "Success", headers: {}, data: "published" };
     });
-    delegate.register(callingSubscriberModule, () => {
+    delegate.register(subscriberContext, contextName, () => {
         return { statusCode: 200, statusMessage: "Success", headers: {}, data: "subscribed" };
     });
-    await messagebusChannel.handle({ callingPublisherModule, callingSubscriberModule }, { publicHost: "localhost", publicPort: 3000, privateHost: "localhost", privatePort: 3000 });
+    await messagebusChannel.handle({ publicHost: "localhost", publicPort: 3000, privateHost: "localhost", privatePort: 3000 });
 })().catch((err)=>{
     console.error(err);
 });
