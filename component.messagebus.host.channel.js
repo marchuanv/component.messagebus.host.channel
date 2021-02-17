@@ -20,7 +20,7 @@ module.exports = {
                 const publisherChannelContextName = `${host.port}/${channel}/publish`;
                 const channelPublishContext = `component.messagebus.publish`;
                 delegate.register(channelPublishContext, publisherChannelContextName, async ({ headers: { fromhost, fromport },data }) => {
-                    return await delegate.call({ context: `component.messagebus.publisher`, name: `${host.port}/${channel}` }, { fromhost, fromport, channel, data });
+                    return await delegate.call({ context: `component.messagebus.publisher` }, { fromhost, fromport, channel, data });
                 });
                 requestHandlerSecure.handle(channelPublishContext, {
                     host: host.name,
@@ -33,7 +33,7 @@ module.exports = {
                 const subscriberChannelContextName = `${host.port}/${channel}/subscribe`;
                 const channelSubscribeContext = `component.messagebus.subscribe`;
                 delegate.register(channelSubscribeContext, subscriberChannelContextName, async ({ headers: { fromhost,fromport }, data }) => {
-                    return await delegate.call({ context: `component.messagebus.subscriber`, name: `${host.port}/${channel}` }, { fromhost, fromport, channel, data });
+                    return await delegate.call({ context: `component.messagebus.subscriber` }, { fromhost, fromport, channel, data });
                 });
                 requestHandlerSecure.handle(channelSubscribeContext, {
                     host: host.name,

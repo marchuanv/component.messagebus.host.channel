@@ -80,12 +80,12 @@ const stringToBase64 = (str) => {
 
     const publisherContext = "component.messagebus.publisher";
     const subscriberContext = "component.messagebus.subscriber";
-    const contextName = `${newHost.port}/apples`;
-    delegate.register(publisherContext, contextName, () => {
+    const name = `global`;
+    delegate.register(publisherContext, name, () => {
         return { statusCode: 200, statusMessage: "Publish Success", headers: {}, data: "published" };
     });
-    delegate.register(subscriberContext, contextName, () => {
-        return { statusCode: 200, statusMessage: "Success", headers: {}, data: "subscribed" };
+    delegate.register(subscriberContext, name, () => {
+        return { statusCode: 200, statusMessage: "Subscribe Success", headers: {}, data: "subscribed" };
     });
 
     //New Publish Request To Secured Host Channel
@@ -105,7 +105,27 @@ const stringToBase64 = (str) => {
         retryCount: 1
     });
     if (results.statusCode !== 200 && results.statusMessage !== "Publish Success"){
-        throw "New Publish Request To Secured Host Channel";
+        throw "New Publish Request To Secured Host Channel Test Failed";
+    }
+
+    //New Subscribe Request To Secured Host Channel
+    results = await request.send({
+        host: newHost.host,
+        port: newHost.port,
+        path: "/apples/subscribe",
+        method: "POST",
+        headers: { 
+            username: "marchuanv",
+            fromhost: "localhost",
+            fromport: 6000,
+            token,
+            encryptionkey
+        }, 
+        data: ``,
+        retryCount: 1
+    });
+    if (results.statusCode !== 200 && results.statusMessage !== "Subscribe Success"){
+        throw "New Subscribe Request To Secured Host Channel Test Failed";
     }
 
     process.exit();
