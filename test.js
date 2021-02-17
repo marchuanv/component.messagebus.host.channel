@@ -1,6 +1,17 @@
 const messagebusChannel = require("./component.messagebus.host.channel.js");
 const delegate = require("component.delegate");
+const crypto = require("crypto");
 const request = require("component.request");
+const generateKeys = (passphrase) => {
+    return crypto.generateKeyPairSync('rsa', { modulusLength: 4096,
+        publicKeyEncoding: { type: 'spki', format: 'pem'},
+        privateKeyEncoding: { type: 'pkcs8', format: 'pem', cipher: 'aes-256-cbc', passphrase }
+    });
+};
+const stringToBase64 = (str) => {
+    return Buffer.from(str, "utf8").toString("base64");
+}
+
 (async()=>{ 
    
     await messagebusChannel.handle({ host: "localhost", port: 3000 });
@@ -25,7 +36,6 @@ const request = require("component.request");
         throw "New Request To Register New Host Test Failed";
     }
 
-    
     //New Request To Secured Host To Get Token
     results = await request.send({
         host: newHost.host,
@@ -47,6 +57,8 @@ const request = require("component.request");
     const token = results.headers.token;
 
     //New Request To Secured Host To Register A Channel
+    const { publicKey } = generateKeys("secure1");
+    const encryptionkey = stringToBase64(publicKey);
     results = await request.send({
         host: newHost.host,
         port: newHost.port,
@@ -56,7 +68,8 @@ const request = require("component.request");
             username: "marchuanv",
             fromhost: "localhost",
             fromport: 6000,
-            token
+            token,
+            encryptionkey
         }, 
         data: `{ "channel":"apples" }`,
         retryCount: 1
@@ -85,7 +98,8 @@ const request = require("component.request");
             username: "marchuanv",
             fromhost: "localhost",
             fromport: 6000,
-            token
+            token,
+            encryptionkey
         }, 
         data: ``,
         retryCount: 1
