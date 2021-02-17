@@ -82,7 +82,7 @@ const stringToBase64 = (str) => {
     const subscriberContext = "component.messagebus.subscriber";
     const contextName = `${newHost.port}/apples`;
     delegate.register(publisherContext, contextName, () => {
-        return { statusCode: 200, statusMessage: "Success", headers: {}, data: "published" };
+        return { statusCode: 200, statusMessage: "Publish Success", headers: {}, data: "published" };
     });
     delegate.register(subscriberContext, contextName, () => {
         return { statusCode: 200, statusMessage: "Success", headers: {}, data: "subscribed" };
@@ -104,7 +104,7 @@ const stringToBase64 = (str) => {
         data: ``,
         retryCount: 1
     });
-    if (results.statusCode !== 200){
+    if (results.statusCode !== 200 && results.statusMessage !== "Publish Success"){
         throw "New Publish Request To Secured Host Channel";
     }
 
