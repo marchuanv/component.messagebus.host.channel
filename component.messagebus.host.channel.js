@@ -11,12 +11,10 @@ module.exports = {
             const registerChannelContext = `component.messagebus.host.channel.register`;
             const registerContextName = `${host.port}/channel/register`;
             delegate.register(registerChannelContext, registerContextName, async ({  data }) => {
-                
                 const { channel } = utils.getJSONObject(data) || {};
                 if (!channel){
                     return { headers: { "Content-Type":"text/plain"}, statusCode: 400, statusMessage: "Bad Request", data: "channel is required" };
                 }
-
                 const publisherChannelContextName = `${host.port}/${channel}/publish`;
                 const channelPublishContext = `component.messagebus.publish`;
                 delegate.register(channelPublishContext, publisherChannelContextName, async ({ headers: { username, fromhost, fromport },data }) => {
@@ -30,7 +28,6 @@ module.exports = {
                     hashedPassphrase: host.hashedPassphrase,
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
-
                 const subscriberChannelContextName = `${host.port}/${channel}/subscribe`;
                 const channelSubscribeContext = `component.messagebus.subscribe`;
                 delegate.register(channelSubscribeContext, subscriberChannelContextName, async ({ headers: { username, fromhost, fromport }, data }) => {
@@ -44,7 +41,7 @@ module.exports = {
                     hashedPassphrase: host.hashedPassphrase,
                     hashedPassphraseSalt: host.hashedPassphraseSalt
                 });
-
+                return { statusCode: 200, statusMessage: `${channel} registered`, headers: {}, data: `${channel} registered` };
             });
             requestHandlerSecure.handle(registerChannelContext, {
                 host: host.name,
@@ -53,6 +50,7 @@ module.exports = {
                 hashedPassphrase: host.hashedPassphrase,
                 hashedPassphraseSalt: host.hashedPassphraseSalt
             });
+            return { statusCode: 200, statusMessage: `${host.name} started on port ${host.port}`, headers: {}, data: `${host.name} started on port ${host.port}` };
         });
         messagebusHost.handle(options);
     }
